@@ -1,0 +1,57 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css_files/navigation_bar.css') }}">
+</head>
+
+<body>
+    <!--NAVBAR maybe change these links to brace brace url underscore for('link') brace brace? -->
+    <div class="navbar">
+        <a href="/">Recipe Finder</a>
+        <a href="/find-recipe">Find Recipes</a>
+        <div class="login_logout">
+        {% if userID != None %}
+            <a href="{{ url_for('logout') }}">Sign out</a>
+        {% else %}
+            <a href="/sign-in">Sign in</a>
+        {% endif %}
+        </div>
+    </div>
+    <br/>
+    <br/>
+
+    <a>Account: {{ first }} {{ last }}</a>
+    
+    <div class="recipes">
+        Recipes liked:<br/>
+        {% if recipesLiked|length == 0 %}
+            None
+        {% else %}
+            
+            {% for r in recipesLiked %}
+                <a href="{{ url_for('view-recipe', id=r.id) }}">{{ r.name }}</a>
+            {% endfor %}
+
+        {% endif %}
+        <br/><br/>
+
+    </div>
+
+    <div class="formBox">
+    
+    {% if logged_in is defined %}
+    {% if logged_in == true %}
+        
+        <a>Change account information:</a>
+
+        <a><br/><br/>Change password:</a>
+
+        <form action="/deleteProfile" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button class="btn" name="delete_profile_btn" value="delete_profile_btn">Delete account</button>
+        </form>
+
+    {% endif %}
+    {% endif %}
+    
+</body>
+</html>

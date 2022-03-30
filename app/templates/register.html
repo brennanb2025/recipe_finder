@@ -1,0 +1,111 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css_files/navigation_bar.css') }}">
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="/">Recipe Finder</a>
+        <a href="{{ url_for('find_recipe') }}">Search for recipes</a>
+        <a href="{{ url_for('create_recipe') }}">Create a recipe</a>
+        <div class="login_logout">
+        {% if userID != None %}
+            <a href="{{ url_for('logout') }}">Sign out</a>
+        {% else %}
+            <a href="/sign-in">Sign in</a>
+        {% endif %}
+        </div>
+    </div>
+    <br/>
+    <br/>
+
+    
+    <a href="{{ url_for('index') }}"><br/>Login</a>
+    
+
+    <br/>
+    Register
+    <br/>
+    
+    <form action="/register" method="POST">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=32) }}<br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for category, message in messages %}
+                        {% if category == 'emailError' %}
+                        <span style="color: red;">[{{ message }}]</span>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </p>
+        <p>
+            {{ form.first_name.label }}<br>
+            {{ form.first_name(size=32) }}<br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for category, message in messages %}
+                        {% if category == 'first_nameError' %}
+                        <span style="color: red;">[{{ message }}]</span>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </p>
+        <p>
+            {{ form.last_name.label }}<br>
+            {{ form.last_name(size=32) }}<br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for category, message in messages %}
+                        {% if category == 'last_nameError' %}
+                        <span style="color: red;">[{{ message }}]</span>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for category, message in messages %}
+                        {% if category == 'passwordError' %}
+                        <span style="color: red;">[{{ message }}]</span>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </p>
+        <p>
+            {{ form.password2.label }}<br>
+            {{ form.password2(size=32) }}<br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for category, message in messages %}
+                        {% if category == 'password2Error' %}
+                        <span style="color: red;">[{{ message }}]</span>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </p>
+        <input type="submit" value="Register"/>
+    </form>
+
+</body>
+</html>

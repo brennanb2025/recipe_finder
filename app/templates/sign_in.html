@@ -1,0 +1,90 @@
+<html>
+<head>
+    <link rel="stylesheet" href="./static/general_page.css">
+    <link rel="stylesheet" href="./static/navigation_bar.css">
+    <link rel="stylesheet" href="./static/sign_in.css">
+</head>
+
+<body>
+    <!--NAVBAR maybe change these links to brace brace url underscore for('link') brace brace? -->
+    <div class="navbar">
+        <!-- <a href="/sign-in">Sign in</a> -->
+        <a href="/"><div class="green">Community Connect</div></a>
+        <a href="/explore">Explore</a>
+        <a href="/createproject">Create</a>
+    </div>
+    <br/>
+    <br/>
+    
+    <div class="all">
+    <title>Community Connect</title>
+
+    <div class="titleBox">
+    <div class="titleText">
+        <strong>Community Connect</strong>
+    </div>
+    </div>
+
+    <div class="formBox">
+    <div class="pageTitle">
+        <a>{{ title }}</a>
+    </div>
+
+    <div class="link">
+        Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+    </div>
+    <br/>
+
+    <div class="regText">
+    <div class="row">
+        <div class="col">
+            <a class="google_btn" href="/sign-in" role="button" style="text-transform:none"> <!--href='/auth'-->
+                <img width="20px" style="margin-bottom:3px; margin-right:5px" alt="Google sign-in" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png"/>
+                Login with Google
+            </a>
+        </div>
+    </div>
+    (Not working)
+    </div>
+
+    <form action="/sign-in" method="POST">
+        <div class="regText">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=32) }}<br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for category, message in messages %}
+                        {% if category == 'emailError' %}
+                        <span style="color: red;">[{{ message }}]</span>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class=flashes>
+                    {% for category, message in messages %}
+                        {% if category == 'passwordError' %}
+                        <span style="color: red;">[{{ message }}]</span>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        </p>
+        </div>
+        <input class="btn" type="submit" value="Sign in"/>
+    </form>
+    </div>
+    </div>
+</body>
+
+</html>

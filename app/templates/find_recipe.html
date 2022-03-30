@@ -1,0 +1,90 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css_files/create_user_table.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css_files/navigation_bar.css') }}">
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="/">Recipe Finder</a>
+        <a href="{{ url_for('find_recipe') }}">Search for recipes</a>
+        <div class="login_logout">
+        {% if userID != None %}
+            <a href="{{ url_for('logout') }}">Sign out</a>
+        {% else %}
+            <a href="/sign-in">Sign in</a>
+        {% endif %}
+        </div>
+    </div>
+    <br/>
+    <br/>
+
+    <form action="/find-recipe" method="POST" enctype="multipart/form-data" id="submitForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+        Ingredients<br/>
+        <table>
+            <tr>
+                <td class="add_attribute_td">
+                    <div class="input-container">
+                        <input list="ingredients" name="ingredientField" class="add_attribute_form_style" id="ingredientField">
+                        <datalist id="ingredients" name="ingredientsDatalist" style="overflow-y: auto">
+                            {% for ingredient in ingredients %}
+                                <option value="{{ingredient.name}}">
+                            {% endfor %}
+                        </datalist>
+                    </div>
+                </td>
+                <td class="add_attribute_td">
+                    <input type="button" class="add_attribute add_something_btn" name="addIngredient" id="addIngredient" value="Add ingredient" onclick="add_ingredient()">
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" id="num_ingredients" name="num_ingredients" value="0">
+
+        <table class="center" class="createTable" id="ingredientTable"></table>
+
+        <button type="submit" id="find_recipe_submit">Search</button>
+    </form>
+
+    {% if not get %}
+
+        {% if recipeList|length == 0 %}
+            NO RECIPES FOUND
+        {% else %}
+            {% for r in recipeList %}
+                {{loop.index}}<br/>
+                <a href="{{ url_for('view_recipe', id=r[0].id) }}">{{ r[0].name }}</a><br/>
+                Recipe description: {{ r[0].description }}<br/>
+                Recipe number of votes: {{ r[0].num_votes }}<br/>
+                Recipe ingredients fulfilled: {{ r[3] }}/{{ r[0].num_ingredients }}<br/>
+                Ingredients fulfilled: 
+                {% for ingredient in r[1] %}
+                    {% if loop.index == r[1]|length %}
+                        {{ingredient.name}}
+                    {% else %}
+                        {{ingredient.name}}, 
+                    {% endif %}
+                {% endfor %}<br/>
+                Total ingredients:
+                {% for ingredient in r[2] %}
+                    {% if loop.index == r[2]|length %}
+                        {{ingredient.name}}
+                    {% else %}
+                        {{ingredient.name}}, 
+                    {% endif %}
+                {% endfor %}<br/>
+                <br/><br/>
+            {% endfor %}
+
+        {% endif %}
+
+    {% endif %}
+
+
+
+</body>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js_files/find_recipe.js')}}"></script>
+
+</html>

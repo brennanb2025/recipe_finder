@@ -1,0 +1,34 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css_files/navigation_bar.css') }}">
+</head>
+
+<body>
+    <div class="navbar">
+        <a href="/">Recipe Finder</a>
+        <a href="{{ url_for('find_recipe') }}">Search for recipes</a>
+        <div class="login_logout">
+        {% if userID != None %}
+            <a href="{{ url_for('logout') }}">Sign out</a>
+        {% else %}
+            <a href="/sign-in">Sign in</a>
+        {% endif %}
+        </div>
+    </div>
+    <br/>
+    <br/>
+
+    This is an app for finding recipes. 
+
+    <br/>
+
+    Hey, I'm Brennan, the creator of this website. 
+    
+    <br/><br/>
+
+    Contact me:<br/>
+    Contact info
+
+</body>
+
+</html>
