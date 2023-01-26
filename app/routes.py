@@ -266,41 +266,65 @@ def find_recipe():
     
     return render_template('find_recipe.html', get=get, ingredients=ingredients, logged_in=logged_in, userID=session.get("userID"))
 
-@app.route('/find-recipe', methods=['POST'])
-def find_recipe_post():
+@app.route('/find-recipe/<int:page>', methods=['POST'])
+def find_recipe_post(page):
     form = request.form
 
     ingredients = form.getlist("ingredientName")
     
     #search for recipes using these ingredients.
-
+    """
+    I changed this so it no longer uses recipeIngredients and just uses ingredients!!!!!
+    """
+    ingredientsIdList = []
     recipeIngredientsList = [] #list of RecipeIngredient objects
     for r in ingredients:
         ingredientObject = Ingredient.query.filter_by(name=r).first()
         if ingredientObject != None:
+            ingredientsIdList.append(ingredientObject.id)
             recipeIngredients = RecipeIngredient.query.filter_by(ingredient_id=ingredientObject.id).all()
             for ri in recipeIngredients:
                 recipeIngredientsList.append(ri.id)
     #I have recipe names --> I get all RecipeIngredients that utilize those recipes.
     #Because RecipeIngredients are what links Recipes with Ingredients.
 
+
+    #ADD OPTIONS:
+    # % ingredients match descending
+    # number ingredients match ascending
+    # number ingredients needed ascending
+
+    per_page = 10
     recipes = db.session.query( \
-            Recipe, 
-            Ingredient,
+            label("recipe_id", Recipe.id),
+            #Ingredient,
             label("number_ingredient_matches", func.count(Recipe.id) ),
-            #label("percent_ingredients_fulfilled", (func.count(Recipe.id) + 0.0) / Recipe.num_ingredients),
-            label("num_ingredients_needed", Recipe.num_ingredients - func.count(Recipe.id))
+            label("percent_ingredients_fulfilled", (func.count(Recipe.id) + 0.0) / Recipe.num_ingredients),
+            label("num_ingredients_needed", Recipe.num_ingredients - func.count(Recipe.id)),
+            label("RecipeIngredient_id", RecipeIngredient.id),
+            label("Recipe_id", Recipe.id)
         ).outerjoin(RecipeIngredient, Recipe.id == RecipeIngredient.recipe_id) \
         .outerjoin(Ingredient, RecipeIngredient.ingredient_id == Ingredient.id) \
         .filter(
-            RecipeIngredient.id.in_(recipeIngredientsList)
+            Ingredient.id.in_(ingredientsIdList)
+            #RecipeIngredient.id.in_(recipeIngredientsList)
         ).group_by(
             Recipe.id
         ).order_by(
-            #desc("percent_ingredients_fulfilled"),
+            #"number_ingredient_matches",
+            desc("percent_ingredients_fulfilled"),
             "num_ingredients_needed",
             desc(Recipe.num_votes)
-        ).all()
+        ).paginate(page,per_page,error_out=False)
+    
+    """
+    This was right after the outerjoin and before the group by
+    .filter(
+            RecipeIngredient.id.in_(recipeIngredientsList)
+        )
+    """
+
+
     """
     SELECT 
         Recipe,
@@ -323,7 +347,12 @@ def find_recipe_post():
         Recipe.num_votes descending
     """
 
-    if len(recipes) == 0:
+
+    recipeItems = recipes.items
+    recipeItemsLen = recipes.total
+    
+
+    if recipeItemsLen == 0:
         ingredients = []
     else:
             
@@ -346,7 +375,8 @@ def find_recipe_post():
                 label("recipe_id", RecipeIngredient.recipe_id)
         ).outerjoin(Ingredient, RecipeIngredient.ingredient_id == Ingredient.id) \
         .filter(
-            RecipeIngredient.id.in_(recipeIngredientsList)
+            Ingredient.id.in_(ingredientsIdList)
+            #RecipeIngredient.id.in_(recipeIngredientsList)
         ).all()
         """
         SELECT
@@ -369,15 +399,15 @@ def find_recipe_post():
 
     #Now get ALL of the ingredients for each recipe
     recipeIDList = []
-    for r in recipes:
-        recipeIDList.append(r.Recipe.id)
+    for r in recipeItems:
+        recipeIDList.append(r.recipe_id)
     
-    if len(recipes) == 0:
+    if recipeItemsLen == 0:
         allIngredients = []
     else:
         allIngredients = get_ingredients(recipeIDList)
 
-    if len(recipes) == 0:
+    if recipeItemsLen == 0:
         recipeList = []
     else:
         allIngredientTable = {}
@@ -403,13 +433,13 @@ def find_recipe_post():
                 ingredientTable[i.recipe_id] = ingredientsArr
 
         uniqueRecipes = {} #dict of recipe : ([ingredients fulfilled], #ingredients fulfilled)
-        for r in recipes:
-            if uniqueRecipes.get(r.Recipe) == None:
-                uniqueRecipes[r.Recipe] = (ingredientTable[r.Recipe.id], allIngredientTable[r.Recipe.id], r.number_ingredient_matches)
+        for r in recipeItems:
+            if uniqueRecipes.get(r.recipe_id) == None:
+                uniqueRecipes[r.recipe_id] = (ingredientTable[r.recipe_id], allIngredientTable[r.recipe_id], r.number_ingredient_matches)
 
         recipeList = []
         for r in uniqueRecipes.keys():
-            recipeList.append((r, uniqueRecipes[r][0], uniqueRecipes[r][1], uniqueRecipes[r][2]))
+            recipeList.append((Recipe.query.filter_by(id=r).first(), uniqueRecipes[r][0], uniqueRecipes[r][1], uniqueRecipes[r][2]))
 
     get = False
 
@@ -418,7 +448,8 @@ def find_recipe_post():
     ingredients = get_popular_ingredients()
 
     return render_template('find_recipe.html', get=get, logged_in=logged_in, ingredients=ingredients,
-            recipeList=recipeList, userID=session.get("userID"))
+            recipeList=recipeList, recipes=recipes,
+            userID=session.get("userID"))
 
 
 def get_ingredients(recipeIDList):

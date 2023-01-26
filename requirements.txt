@@ -32,3 +32,4 @@ Werkzeug==0.16.0
 WTForms==2.2.1
 zope.interface==5.2.0
 itsdangerous==2.0.1
+pandas
